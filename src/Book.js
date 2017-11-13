@@ -13,7 +13,7 @@ class Book extends Component {
   };
 
   state = {
-    value: this.props.book.shelf
+    value: this.props.book.shelf ? this.props.book.shelf : 'none'
   };
 
   updateState = (event) => {
@@ -24,7 +24,13 @@ class Book extends Component {
 
   render() {
 
-    let authors_string = this.props.book.authors.join(', ');
+    let authors_string;
+
+    if (this.props.book.authors) {
+      authors_string = this.props.book.authors.join(', ');
+    } else {
+      authors_string = []
+    }
 
     let backgroundImage = this.props.book.imageLinks.thumbnail;
 
@@ -35,7 +41,7 @@ class Book extends Component {
                style={{ width: 128, height: 192, backgroundImage: `url(${backgroundImage})` }}></div>
           <div className="book-shelf-changer">
             <select onChange={this.updateState} value={this.state.value}>
-              <option value="none" disabled>Move to...</option>
+              <option value="selection" disabled>Move to...</option>
               <option value="currentlyReading">Currently Reading</option>
               <option value="wantToRead">Want to Read</option>
               <option value="read">Read</option>

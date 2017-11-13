@@ -5,9 +5,16 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI.js';
+import PropTypes from 'prop-types';
+import Book from './Book.js'
 
 
 class SearchBooks extends Component {
+
+  static propTypes = {
+    books: PropTypes.array.isRequired,
+    changeShelf: PropTypes.func.isRequired
+  };
   
   state = {
     query: '',
@@ -16,11 +23,14 @@ class SearchBooks extends Component {
   
   componentDidUpdate(prevProps, prevState) {
     if (this.state.query !== prevState.query && this.state.query !== '') {
+
       BooksAPI.search(this.state.query, 20).then(results => {
-        this.setState({searchResults: results});
-        console.log(this.state.searchResults);
-        console.log(results)
+        // this.setState({searchResults: results});
+        this.checkStatus(results);
       });
+    }
+    if (this.state.query !== prevState.query && this.state.query === '') {
+      this.setState({searchResults: []})
     }
   }
   
@@ -28,7 +38,31 @@ class SearchBooks extends Component {
     this.setState({query: event.target.value})
   };
 
+  checkStatus = (searchResults) => {
+    let ids = [];
+    this.props.books.forEach((book) => ids.push(book.id));
+
+    let newSearchResults = searchResults;
+
+    searchResults.forEach((result, index) => {
+      let indexBooks = ids.indexOf(result.id);
+      if (indexBooks !== -1) {
+        newSearchResults[index].shelf = this.props.books[indexBooks].shelf;
+      }
+    });
+
+    this.setState({
+      searchResults: newSearchResults
+    })
+
+  };
+
   render() {
+
+    let searchResults = this.state.searchResults;
+
+    // debugger;
+
     return (
       <div className="search-books">
         <div className="search-books-bar">
@@ -51,11 +85,25 @@ class SearchBooks extends Component {
               onChange={this.updateQuery}
               placeholder="Search by title or author"
             />
-
           </div>
         </div>
         <div className="search-books-results">
-          <ol className="books-grid"></ol>
+          <div className="bookshelf">
+            <div className="bookshelf-books">
+              <ol className="books-grid">
+                {searchResults && (
+                  searchResults.map((book) => (
+                    <li key={book.id}>
+                      <Book
+                        book={book}
+                        changeShelf={this.props.changeShelf}
+                      />
+                    </li>
+                  ))
+                )}
+              </ol>
+            </div>
+          </div>
         </div>
       </div>
     )
