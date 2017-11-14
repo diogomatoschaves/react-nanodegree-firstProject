@@ -17,22 +17,19 @@ class Book extends Component {
   };
 
   updateState = (event) => {
-    // debugger;
-    this.setState({value: event.target.value});
-    this.props.changeShelf(this.props.book, event.target.value)
+    const { value } = event.target;
+    this.setState({ value });
+    this.props.changeShelf(this.props.book, value)
   };
 
   render() {
 
-    let authors_string;
-
-    if (this.props.book.authors) {
-      authors_string = this.props.book.authors.join(', ');
-    } else {
-      authors_string = []
-    }
-
+    const { authors: bookAuthors, title } = this.props.book;
     let backgroundImage = this.props.book.imageLinks.thumbnail;
+
+    let authorsString = [];
+
+    if (bookAuthors) authorsString = bookAuthors.join(', ');
 
     return (
       <div className="book">
@@ -49,8 +46,8 @@ class Book extends Component {
             </select>
           </div>
         </div>
-        <div className="book-title">{this.props.book.title}</div>
-        <div className="book-authors">{authors_string}</div>
+        <div className="book-title">{title}</div>
+        <div className="book-authors">{authorsString}</div>
       </div>
     )
   }

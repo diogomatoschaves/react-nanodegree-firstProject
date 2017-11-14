@@ -25,11 +25,19 @@ class BooksApp extends React.Component {
   changeShelf = (book, shelf) => {
     // debugger;
     BooksAPI.update(book, shelf).then(res => {
-      console.log(res);
-      BooksAPI.getAll().then((books) => {
-        this.setState({books: books})
-      })
+      
     });
+
+    const { books: prevBooks } = this.state;
+    const books = prevBooks.map((entry) => {
+      if (entry.id === book.id) {
+        entry.shelf = shelf
+      }
+      return entry
+    });
+
+    this.setState({ books })
+
   };
 
   render() {

@@ -2,66 +2,87 @@
  * Created by diogomatoschaves on 10/11/2017.
  */
 
-import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import React, { PureComponent } from 'react';
+import { Link } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 import * as BooksAPI from './BooksAPI.js';
 import PropTypes from 'prop-types';
-import Book from './Book.js'
+import Book from './Book.js';
 
 
-class SearchBooks extends Component {
+class SearchBooks extends PureComponent {
+
+  // Note: I had to wrap all the actions that were inside the componentDidUpdate into a function,
+  // so that I could use the debouncer function inside the constructor method. This seems a rather
+  // complex workaround, so if you know other methods please let me know. I also could not get the
+  // <Debouncer> element from react-throttle to work, as the query would not change as I would type.
+  //
+
+  constructor(props){
+    super(props);
+    this.state = {
+      query: '',
+      searchResults: []
+    };
+    this.changed = debounce(this.changed, 400)
+  }
 
   static propTypes = {
     books: PropTypes.array.isRequired,
     changeShelf: PropTypes.func.isRequired
   };
-  
-  state = {
-    query: '',
-    searchResults: []
-  };
-  
-  componentDidUpdate(prevProps, prevState) {
+
+  changed = (prevState) => {
     if (this.state.query !== prevState.query && this.state.query !== '') {
 
-      BooksAPI.search(this.state.query, 20).then(results => {
-        // this.setState({searchResults: results});
-        this.checkStatus(results);
-      });
+      BooksAPI.search(this.state.query, 20)
+        .then(results => {
+          this.checkStatus(results);
+        });
     }
+
     if (this.state.query !== prevState.query && this.state.query === '') {
       this.setState({searchResults: []})
     }
+  };
+  
+  componentDidUpdate(prevProps, prevState) {
+    this.changed(prevState);
   }
   
   updateQuery = (event) => {
+    // debugger;
+    event.persist();
     this.setState({query: event.target.value})
+
   };
 
   checkStatus = (searchResults) => {
-    let ids = [];
-    this.props.books.forEach((book) => ids.push(book.id));
+
+    const ids = this.props.books.map((book) => book.id);
 
     let newSearchResults = searchResults;
 
-    searchResults.forEach((result, index) => {
-      let indexBooks = ids.indexOf(result.id);
-      if (indexBooks !== -1) {
-        newSearchResults[index].shelf = this.props.books[indexBooks].shelf;
-      }
-    });
+    if (searchResults instanceof Array) {
+      searchResults.forEach((result, index) => {
+        let indexBooks = ids.indexOf(result.id);
+        if (indexBooks !== -1) {
+          newSearchResults[index].shelf = this.props.books[indexBooks].shelf;
+        }
+      });
+
+    } else {
+      newSearchResults = []
+    }
 
     this.setState({
       searchResults: newSearchResults
     })
-
   };
 
   render() {
 
-    let searchResults = this.state.searchResults;
-
-    // debugger;
+    const { searchResults, query } = this.state;
 
     return (
       <div className="search-books">
@@ -79,12 +100,12 @@ class SearchBooks extends Component {
               However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
               you don't find a specific author or title. Every search is limited by search terms.
             */}
-            <input 
-              type="text" 
-              value={this.state.query}
-              onChange={this.updateQuery}
-              placeholder="Search by title or author"
-            />
+              <input
+                type="text" 
+                value={query}
+                onChange={this.updateQuery}
+                placeholder="Search by title or author"
+              />
           </div>
         </div>
         <div className="search-books-results">

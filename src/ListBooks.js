@@ -5,7 +5,6 @@
 import React, { Component } from 'react';
 import Book from './Book.js';
 import PropTypes from 'prop-types';
-import * as BooksAPI from './BooksAPI.js';
 import { Link } from 'react-router-dom';
 
 
@@ -19,9 +18,7 @@ class ListBooks extends Component {
   render () {
 
     const { books, changeShelf } = this.props;
-
-    // currentlyReading = books.filter((book) => book.shelf === 'currentlyReading')
-
+    
     return (
       <div className="list-books">
         <div className="list-books-title">
