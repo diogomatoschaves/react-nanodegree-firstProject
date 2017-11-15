@@ -12,12 +12,6 @@ import Book from './Book.js';
 
 class SearchBooks extends PureComponent {
 
-  // Note: I had to wrap all the actions that were inside the componentDidUpdate into a function,
-  // so that I could use the debouncer function inside the constructor method. This seems a rather
-  // complex workaround, so if you know other methods please let me know. I also could not get the
-  // <Debouncer> element from react-throttle to work, as the query would not change as I would type.
-  //
-
   constructor(props){
     super(props);
     this.state = {

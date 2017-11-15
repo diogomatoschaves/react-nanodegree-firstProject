@@ -7,6 +7,13 @@ import PropTypes from 'prop-types'
 
 class Book extends Component {
 
+  /* Regarding comment in review suggesting I should use a stateless functional component:
+
+  I can't use a functional component in this case, as I'm storing the value of the select dropdown option
+  as a state variable.
+
+   */
+
   static propTypes = {
     book: PropTypes.object.isRequired,
     changeShelf: PropTypes.func.isRequired
@@ -25,7 +32,12 @@ class Book extends Component {
   render() {
 
     const { authors: bookAuthors, title } = this.props.book;
-    let backgroundImage = this.props.book.imageLinks.thumbnail;
+
+    let backgroundImage;
+
+    (this.props.book.imageLinks && this.props.book.imageLinks.thumbnail) ?
+    backgroundImage = this.props.book.imageLinks.thumbnail :
+    backgroundImage = 'http://via.placeholder.com/128x193?text=No%20Cover';
 
     let authorsString = [];
 

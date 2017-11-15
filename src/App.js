@@ -2,20 +2,14 @@ import React from 'react';
 import './App.css';
 import ListBooks from './ListBooks.js';
 import * as BooksAPI from './BooksAPI.js';
-import { Route } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import SearchBooks from './SearchBooks.js';
+import NoMatch from './NoMatch.js'
 
 
 class BooksApp extends React.Component {
   state = {
-  /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
-    books: [],
-    searchResults: []
+    books: []
   };
 
   componentDidMount () {
@@ -28,13 +22,14 @@ class BooksApp extends React.Component {
       
     });
 
-    const { books: prevBooks } = this.state;
-    const books = prevBooks.map((entry) => {
-      if (entry.id === book.id) {
-        entry.shelf = shelf
+    let books = this.state.books;
+    const booksId = books.map((prevBook) => prevBook.id);
+      if (booksId.includes(book.id)) {
+        books[booksId.indexOf(book.id)].shelf = shelf;
+      } else {
+        book.shelf = shelf;
+        books.push(book)
       }
-      return entry
-    });
 
     this.setState({ books })
 
@@ -43,18 +38,21 @@ class BooksApp extends React.Component {
   render() {
     return (
       <div className="app">
-        <Route path="/search" render={() => (
-          <SearchBooks
-            books={this.state.books}
-            changeShelf={this.changeShelf}
-          />
-        )}/>          
-        <Route exact path="/" render={() => (
-          <ListBooks
-            books={this.state.books}
-            changeShelf={this.changeShelf}
-          />
-        )}/>
+        <Switch>
+          <Route path="/search" render={() => (
+            <SearchBooks
+              books={this.state.books}
+              changeShelf={this.changeShelf}
+            />
+          )}/>
+          <Route exact path="/" render={() => (
+            <ListBooks
+              books={this.state.books}
+              changeShelf={this.changeShelf}
+            />
+          )}/>
+          <Route component={NoMatch}/>
+        </Switch>
       </div>
     )
   }
