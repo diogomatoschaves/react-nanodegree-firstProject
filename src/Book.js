@@ -2,67 +2,49 @@
  * Created by diogomatoschaves on 10/11/2017.
  */
 
-import React, { Component } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
-class Book extends Component {
+const Book = (props) => {
 
-  /* Regarding comment in review suggesting I should use a stateless functional component:
+  const { authors: bookAuthors, title } = props.book;
+  const value = props.book.shelf ? props.book.shelf : 'none';
 
-  I can't use a functional component in this case, as I'm storing the value of the select dropdown option
-  as a state variable.
+  let backgroundImage;
 
-   */
+  (props.book.imageLinks && props.book.imageLinks.thumbnail) ?
+  backgroundImage = props.book.imageLinks.thumbnail :
+  backgroundImage = 'http://via.placeholder.com/128x193?text=No%20Cover';
 
-  static propTypes = {
-    book: PropTypes.object.isRequired,
-    changeShelf: PropTypes.func.isRequired
-  };
+  let authorsString = [];
 
-  state = {
-    value: this.props.book.shelf ? this.props.book.shelf : 'none'
-  };
+  if (bookAuthors) authorsString = bookAuthors.join(', ');
 
-  updateState = (event) => {
-    const { value } = event.target;
-    this.setState({ value });
-    this.props.changeShelf(this.props.book, value)
-  };
-
-  render() {
-
-    const { authors: bookAuthors, title } = this.props.book;
-
-    let backgroundImage;
-
-    (this.props.book.imageLinks && this.props.book.imageLinks.thumbnail) ?
-    backgroundImage = this.props.book.imageLinks.thumbnail :
-    backgroundImage = 'http://via.placeholder.com/128x193?text=No%20Cover';
-
-    let authorsString = [];
-
-    if (bookAuthors) authorsString = bookAuthors.join(', ');
-
-    return (
-      <div className="book">
-        <div className="book-top">
-          <div className="book-cover"
-               style={{ width: 128, height: 192, backgroundImage: `url(${backgroundImage})` }}></div>
-          <div className="book-shelf-changer">
-            <select onChange={this.updateState} value={this.state.value}>
-              <option value="selection" disabled>Move to...</option>
-              <option value="currentlyReading">Currently Reading</option>
-              <option value="wantToRead">Want to Read</option>
-              <option value="read">Read</option>
-              <option value="none">None</option>
-            </select>
-          </div>
+  return (
+    <div className="book">
+      <div className="book-top">
+        <div className="book-cover"
+             style={{ width: 128, height: 192, backgroundImage: `url(${backgroundImage})` }}></div>
+        <div className="book-shelf-changer">
+          <select onChange={(e) => props.changeShelf(props.book, e.target.value)} value={value}>
+            <option value="selection" disabled>Move to...</option>
+            <option value="currentlyReading">Currently Reading</option>
+            <option value="wantToRead">Want to Read</option>
+            <option value="read">Read</option>
+            <option value="none">None</option>
+          </select>
         </div>
-        <div className="book-title">{title}</div>
-        <div className="book-authors">{authorsString}</div>
       </div>
-    )
-  }
-}
+      <div className="book-title">{title}</div>
+      <div className="book-authors">{authorsString}</div>
+    </div>
+  )
+};
+
+Book.propTypes = {
+  book: PropTypes.object.isRequired,
+  changeShelf: PropTypes.func.isRequired
+};
+
 
 export default Book
